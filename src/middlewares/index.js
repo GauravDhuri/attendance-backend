@@ -1,6 +1,6 @@
 module.exports = {
   list: [
-    './../middlewares/auth.js',
-    './../middlewares/error-handler.js'
+    "./../middlewares/auth.js",
+    "./../middlewares/error-handler.js"
   ]
 };

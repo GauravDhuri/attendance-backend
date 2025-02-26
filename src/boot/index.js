@@ -1,13 +1,13 @@
-const { textSync } = require('figlet');
+const { textSync } = require("figlet");
 const { Database } = require("./database");
 const { Middleware } = require("./middleware");
 const { Route } = require("./route");
 
 (async () => {
   try {
-    const { default: chalk } = await import('chalk');
+    const { default: chalk } = await import("chalk");
 
-    const app = require('./server');
+    const app = require("./server");
     const db = Database.getInstance();
     const middleware = new Middleware();
     const route = new Route();

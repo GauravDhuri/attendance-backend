@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const middlewares = require('./../middlewares/index.js');
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const middlewares = require("./../middlewares/index.js");
 
 class Middleware {
   async init(app) {
@@ -26,7 +26,7 @@ class Middleware {
 
       return Promise.resolve();
     } catch (error) {
-      console.error('Error loading middleware:', error);
+      console.error("Error loading middleware:", error);
       return Promise.reject(error);
     }
   }
