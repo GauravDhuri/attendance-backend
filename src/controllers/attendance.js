@@ -133,7 +133,66 @@ async function fetch(req, res) {
   }
 }
 
+async function fetchAll(req, res) {
+  try {
+    const { email, pagination, skipPagination } = req.body;
+
+    const [findUserErr, findUserRes] = await safePromise(User.findUser(email));
+    if (findUserErr) {
+      return res.status(500).json({
+        status: false,
+        msg: 'Internal Error',
+        data: {},
+      });
+    }
+
+    const userData = findUserRes.data[0];
+
+    const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAllAttendance({ user_id: userData.id, pagination, skipPagination }));
+    if (findAttDataErr) {
+      return res.status(500).json({
+        status: false,
+        msg: 'Internal Error',
+        data: {},
+      });
+    }
+
+    const records = findAttDataRes.data.records.map(({ check_in_time, check_out_time, date, total_work_hours }) => ({
+      checkInTime: formatTime(check_in_time),
+      checkOutTime: formatTime(check_out_time),
+      date,
+      totalWorkHours: total_work_hours,
+    }));
+
+    const response = {
+      records,
+      ...(pagination && {
+        pagination: {
+          page: pagination.page,
+          pageSize: pagination.pageSize,
+          totalCount: findAttDataRes.data.count,
+          totalPages: Math.ceil(findAttDataRes.data.count / pagination.pageSize),
+        },
+      }),
+    };
+
+    return res.status(200).json({
+      status: true,
+      msg: "success",
+      data: response
+    })
+  } catch (error) {
+    console.log('error in fetching all attendance', error);
+    return res.status(500).json({
+      status: false,
+      msg: "Something went wrong",
+      data: {}
+    })
+  }
+}
+
 module.exports = {
   mark,
-  fetch
+  fetch,
+  fetchAll
 }

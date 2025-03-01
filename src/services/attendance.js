@@ -1,7 +1,8 @@
+const { getPaginationRange } = require("../utils/index.js");
+
 async function fetchAttendance(attendanceData) {
   const { Database } = require("../boot/database.js");
   const supaBase = Database.getInstance();
-
   const { data, error } = await supaBase.supabaseClient.from("attendance").select("*").eq("date", attendanceData.date).eq("user_id", attendanceData.user_id);
   if(error) {
     return Promise.reject({
@@ -13,6 +14,35 @@ async function fetchAttendance(attendanceData) {
   return Promise.resolve({
     success: true,
     data: data
+  })
+}
+
+async function fetchAllAttendance(attendanceData) {
+  const { Database } = require("../boot/database.js");
+  const supaBase = Database.getInstance();
+
+  const query = supaBase.supabaseClient.from("attendance").select("*", { count: 'exact' }).eq("user_id", attendanceData.user_id);
+
+  if(attendanceData.pagination) {
+    const { page, pageSize } = attendanceData.pagination;
+    const { offset, limit } = getPaginationRange(page, pageSize);
+    query.range(offset, offset + limit - 1);
+  }
+
+  const { data, count, error } = await query;
+  if(error) {
+    return Promise.reject({
+      success: false,
+      data: error
+    });
+  }
+
+  return Promise.resolve({
+    success: true,
+    data: {
+      records: data,
+      count: count
+    }
   })
 }
 
@@ -54,6 +84,7 @@ async function updateAttendance(attendanceData, updateId) {
 
 module.exports = {
   fetchAttendance,
+  fetchAllAttendance,
   addAttendance,
   updateAttendance
 }

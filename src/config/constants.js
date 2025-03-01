@@ -9,7 +9,8 @@ const VALIDATE_MODULE_NAMES = {
     module: "attendance",
     route: {
       MARK: "mark",
-      FETCH: "fetch"
+      FETCH: "fetch",
+      FETCH_ALL: "fetchAll"
     }
   }
 }
