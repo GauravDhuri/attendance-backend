@@ -11,14 +11,16 @@ async function login(req, res) {
     if(findUserErr) {
       return res.status(200).json({
         status: false,
-        data: "Internal Error"
+        msg: "Internal Error",
+        data: {}
       });
     }
 
     if(!findUserRes.data.length || findUserRes.data.length > 1) {
       return res.status(401).json({
         status: false,
-        data: "Authentication Error"
+        msg: "Authentication Error",
+        data: {}
       })
     }
 
@@ -28,7 +30,8 @@ async function login(req, res) {
     if(verifyUserErr) {
       return res.status(401).json({
         status: false,
-        data: "Authentication Error"
+        msg: "Authentication Error",
+        data: {}
       });
     }
 
@@ -40,7 +43,8 @@ async function login(req, res) {
     if(jwtErr) {
       return res.status(401).json({
         status: false,
-        data: "Authentication Error"
+        msg: "Authentication Error",
+        data: {}
       });
     }
 
@@ -53,10 +57,18 @@ async function login(req, res) {
 
     return res.status(200).json({
       status: true,
-      data: "Success"
+      msg: "Success",
+      data: {
+        email: email,
+        userName: userData.user_name
+      }
     });
   } catch (error) {
-    
+    return res.status(500).json({
+      status: false,
+      msg: "Something went wrong",
+      data: {}
+    })
   }
 }
 
