@@ -8,7 +8,8 @@ const VALIDATE_MODULE_NAMES = {
   ATTENDANCE: {
     module: "attendance",
     route: {
-      MARK: "mark"
+      MARK: "mark",
+      FETCH: "fetch"
     }
   }
 }

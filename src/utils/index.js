@@ -29,9 +29,19 @@ const calculateTotalHours = (checkInTime, checkOutTime) => {
   return totalHours;
 };
 
+const formatTime = (timeString) => {
+  const timeWithoutTimezone = timeString.split('+')[0]; 
+
+  const dateObj = new Date(`1970-01-01T${timeWithoutTimezone}Z`);
+  const hours = String(dateObj.getUTCHours()).padStart(2, '0');
+  const minutes = String(dateObj.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(dateObj.getUTCSeconds()).padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+};
 
 module.exports = {
   safePromise,
   passwordCompare,
-  calculateTotalHours
+  calculateTotalHours,
+  formatTime
 }

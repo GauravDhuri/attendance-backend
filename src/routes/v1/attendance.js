@@ -6,6 +6,7 @@ const ATTENDANCE = VALIDATE_MODULE_NAMES.ATTENDANCE;
 
 const router = Router();
 
+router.post("/fetch", validator(ATTENDANCE.module, ATTENDANCE.route.FETCH), Attendance.fetch);
 router.post("/mark", validator(ATTENDANCE.module, ATTENDANCE.route.MARK), Attendance.mark);
 
 module.exports = router;
