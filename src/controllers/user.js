@@ -9,7 +9,7 @@ async function login(req, res) {
 
     const [findUserErr, findUserRes] = await safePromise(User.findUser(email));
     if(findUserErr) {
-      return res.status(200).json({
+      return res.status(500).json({
         status: false,
         msg: "Internal Error",
         data: {}

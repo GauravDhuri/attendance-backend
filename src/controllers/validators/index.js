@@ -1,4 +1,5 @@
 const { getUserSchema } = require("../validators/user.js");
+const { getAttendaceSchema } = require("../validators/attendance.js");
 const { VALIDATE_MODULE_NAMES } = require("../../config/constants.js");
 
 function validator(module, route) {
@@ -43,7 +44,8 @@ function validate(data, schema) {
 
 function getSchema(moduleName, routeName) {
   const schemas = {
-    [VALIDATE_MODULE_NAMES.USER.module]: getUserSchema(routeName)
+    [VALIDATE_MODULE_NAMES.USER.module]: getUserSchema(routeName),
+    [VALIDATE_MODULE_NAMES.ATTENDANCE.module]: getAttendaceSchema(routeName)
   };
 
   return schemas[moduleName] || null;

@@ -4,6 +4,12 @@ const VALIDATE_MODULE_NAMES = {
     route: {
       LOGIN: "login"
     }
+  },
+  ATTENDANCE: {
+    module: "attendance",
+    route: {
+      MARK: "mark"
+    }
   }
 }
 
