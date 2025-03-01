@@ -7,9 +7,9 @@ const passwordCompare = (plainPassword, encryptedPassword) => {
   try {
     matched = compareSync(plainPassword, encryptedPassword);
   } catch (error) {
-    console.log("error", error);
     return matched;
   }
+  return matched
 }
 
 const calculateTotalHours = (checkInTime, checkOutTime) => {

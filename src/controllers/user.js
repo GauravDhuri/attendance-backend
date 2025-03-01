@@ -25,7 +25,6 @@ async function login(req, res) {
     }
 
     const userData = findUserRes.data[0];
-
     const [verifyUserErr, _verifyUserRes] = await safePromise(User.verifyPassword(password, userData));
     if(verifyUserErr) {
       return res.status(401).json({
@@ -54,13 +53,13 @@ async function login(req, res) {
     }
 
     res.cookie(cookie.name, jwtRes, cookieOptions);
-
     return res.status(200).json({
       status: true,
       msg: "Success",
       data: {
         email: email,
-        userName: userData.user_name
+        userName: userData.user_name,
+        role: userData.role
       }
     });
   } catch (error) {
