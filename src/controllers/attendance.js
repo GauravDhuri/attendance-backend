@@ -135,7 +135,7 @@ async function fetch(req, res) {
 
 async function fetchAll(req, res) {
   try {
-    const { email, pagination, skipPagination } = req.body;
+    const { email, pagination, skipPagination, dateRange } = req.body;
 
     const [findUserErr, findUserRes] = await safePromise(User.findUser(email));
     if (findUserErr) {
@@ -148,7 +148,7 @@ async function fetchAll(req, res) {
 
     const userData = findUserRes.data[0];
 
-    const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAllAttendance({ user_id: userData.id, pagination, skipPagination }));
+    const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAllAttendance({ user_id: userData.id, pagination, skipPagination, dateRange }));
     if (findAttDataErr) {
       return res.status(500).json({
         status: false,

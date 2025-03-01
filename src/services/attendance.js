@@ -29,6 +29,11 @@ async function fetchAllAttendance(attendanceData) {
     query.range(offset, offset + limit - 1);
   }
 
+  if(attendanceData.dateRange) {
+    query.gte("date", attendanceData.dateRange.startDate);
+    query.lte("date", attendanceData.dateRange.endDate);
+  }
+
   const { data, count, error } = await query;
   if(error) {
     return Promise.reject({

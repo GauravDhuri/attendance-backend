@@ -20,6 +20,10 @@ function getAttendaceSchema(name) {
       return joi.object({
         email: joi.string(),
         skipPagination: joi.boolean(),
+        dateRange: joi.object({
+          startDate: joi.string(),
+          endDate: joi.string()
+        }),
         pagination: joi.object({
           page: joi.number(),
           pageSize: joi.number()
