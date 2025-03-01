@@ -19,21 +19,48 @@ async function mark(req, res) {
 
     const totalWorkHours = calculateTotalHours(checkInTime, checkOutTime);
 
-    const attendanceData = {
-      user_id: userData.id,
-      date: date,
-      check_in_time: checkInTime,
-      check_out_time: checkOutTime,
-      total_work_hours: totalWorkHours
-    }
-
-    const [addErr, addRes] = await safePromise(Attendance.addAttendance(attendanceData));
-    if(addErr) {
+    const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAttendance({ date: date, user_id: userData.id  }));
+    if(findAttDataErr) {
       return res.status(500).json({
         status: false,
         msg: "Internal Error",
         data: {}
-      })
+      });
+    }
+
+    if(!findAttDataRes || !findAttDataRes.data.length) {
+      const attendanceData = {
+        user_id: userData.id,
+        date: date,
+        check_in_time: checkInTime,
+        check_out_time: checkOutTime,
+        total_work_hours: totalWorkHours
+      }
+  
+      const [addErr, _addRes] = await safePromise(Attendance.addAttendance(attendanceData));
+      if(addErr) {
+        return res.status(500).json({
+          status: false,
+          msg: "Internal Error",
+          data: {}
+        })
+      }
+    } else {
+      const updateAttendance = {
+        check_in_time: checkInTime,
+        check_out_time: checkOutTime,
+        total_work_hours: totalWorkHours,
+        updated_at: new Date().toISOString(),
+      }
+      const updateId = findAttDataRes.data[0].id;
+      const [updateErr, _updateRes] = await safePromise(Attendance.updateAttendance(updateAttendance, updateId));
+      if(updateErr) {
+        return res.status(500).json({
+          status: false,
+          msg: "Internal Error",
+          data: {}
+        });
+      }
     }
 
     return res.status(200).json({
