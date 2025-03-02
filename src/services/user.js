@@ -29,11 +29,24 @@ async function generateJsonWebToken(data) {
   return Promise.resolve(token);
 }
 
-async function findUser(email) {
+async function findUser(params) {
   const { Database } = require("../boot/database.js");
   const supaBase = Database.getInstance();
 
-  const { data, error } = await supaBase.supabaseClient.from("users").select("*").eq("email", email);
+  const query = supaBase.supabaseClient.from("users").select("*");
+  if(params.name) {
+    query.eq('user_name', params.name);
+  }
+
+  if(params.email) {
+    query.eq('email', params.email);
+  }
+
+  if(params.department) {
+    query.eq('department', params.department)
+  }
+
+  const { data, error } = await query;
   if(error) {
     return Promise.reject({
       success: false,

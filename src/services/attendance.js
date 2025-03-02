@@ -21,7 +21,7 @@ async function fetchAllAttendance(attendanceData) {
   const { Database } = require("../boot/database.js");
   const supaBase = Database.getInstance();
 
-  const query = supaBase.supabaseClient.from("attendance").select("*", { count: 'exact' }).eq("user_id", attendanceData.user_id);
+  const query = supaBase.supabaseClient.from("attendance").select("*, users(user_name, department)", { count: 'exact' }).in("user_id", attendanceData.user_id);
 
   if(attendanceData.pagination) {
     const { page, pageSize } = attendanceData.pagination;

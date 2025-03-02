@@ -6,7 +6,7 @@ async function mark(req, res) {
   try {
     const { checkInTime, checkOutTime, email, date } = req.body;
 
-    const [findUserErr, findUserRes] = await safePromise(User.findUser(email));
+    const [findUserErr, findUserRes] = await safePromise(User.findUser({ email }));
     if(findUserErr) {
       return res.status(500).json({
         status: false,
@@ -16,10 +16,10 @@ async function mark(req, res) {
     }
 
     const userData = findUserRes.data[0];
+    let totalWorkHours = null;
+    if(checkInTime && checkOutTime) totalWorkHours = calculateTotalHours(checkInTime, checkOutTime);
 
-    const totalWorkHours = calculateTotalHours(checkInTime, checkOutTime);
-
-    const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAttendance({ date: date, user_id: userData.id  }));
+    const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAttendance({ date: date, user_id: userData.id }));
     if(findAttDataErr) {
       return res.status(500).json({
         status: false,
@@ -30,12 +30,12 @@ async function mark(req, res) {
 
     if(!findAttDataRes || !findAttDataRes.data.length) {
       const attendanceData = {
+        check_in_time: checkInTime,
         user_id: userData.id,
         date: date,
-        check_in_time: checkInTime,
-        check_out_time: checkOutTime,
-        total_work_hours: totalWorkHours
       }
+      if(checkOutTime) attendanceData.check_out_time = checkOutTime;
+      if(totalWorkHours) attendanceData.total_work_hours = totalWorkHours;
   
       const [addErr, _addRes] = await safePromise(Attendance.addAttendance(attendanceData));
       if(addErr) {
@@ -47,11 +47,12 @@ async function mark(req, res) {
       }
     } else {
       const updateAttendance = {
-        check_in_time: checkInTime,
-        check_out_time: checkOutTime,
         total_work_hours: totalWorkHours,
         updated_at: new Date().toISOString(),
       }
+      if(checkInTime) updateAttendance.check_in_time = checkInTime;
+      if(checkOutTime) updateAttendance.check_out_time = checkOutTime;
+
       const updateId = findAttDataRes.data[0].id;
       const [updateErr, _updateRes] = await safePromise(Attendance.updateAttendance(updateAttendance, updateId));
       if(updateErr) {
@@ -111,10 +112,10 @@ async function fetch(req, res) {
     }
 
     const response = {
-      checkInTime: formatTime(findAttDataRes.data[0].check_in_time),
-      checkOutTime: formatTime(findAttDataRes.data[0].check_out_time),
+      checkInTime: findAttDataRes.data[0].check_in_time ? formatTime(findAttDataRes.data[0].check_in_time) : null,
+      checkOutTime: findAttDataRes.data[0].check_out_time ? formatTime(findAttDataRes.data[0].check_out_time) : null,
       date: findAttDataRes.data[0].date,
-      totalWorkHours: findAttDataRes.data[0].total_work_hours
+      totalWorkHours: findAttDataRes.data[0].total_work_hours ? findAttDataRes.data[0].total_work_hours : 'N/A'
     };
 
     return res.status(200).json({
@@ -135,20 +136,53 @@ async function fetch(req, res) {
 
 async function fetchAll(req, res) {
   try {
-    const { email, pagination, skipPagination, dateRange } = req.body;
+    const { email, name, department, pagination, skipPagination, dateRange } = req.body;
 
-    const [findUserErr, findUserRes] = await safePromise(User.findUser(email));
-    if (findUserErr) {
-      return res.status(500).json({
-        status: false,
-        msg: 'Internal Error',
-        data: {},
-      });
+    let userData;
+
+    if(email || name || department) {
+      const [findUserErr, findUserRes] = await safePromise(User.findUser({ email, name, department }));
+      if (findUserErr) {
+        return res.status(500).json({
+          status: false,
+          msg: 'Internal Error',
+          data: {},
+        });
+      }
+  
+      if(!findUserRes || !findUserRes.data.length) {
+        return res.status(200).json({
+          status: true,
+          msg: "success",
+          data: {}
+        })
+      }
+
+      userData = findUserRes.data;
+      if(!userData.length) {
+        return res.status(200).json({
+          status: true,
+          msg: "scuccess",
+          data: {}
+        })
+      }
     }
 
-    const userData = findUserRes.data[0];
+    const findAttendanceObj = {}
 
-    const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAllAttendance({ user_id: userData.id, pagination, skipPagination, dateRange }));
+    if(userData) {
+      const userIds = userData.map((user) => user.id);
+      findAttendanceObj.user_id = userIds;
+    }
+    if(department) findAttendanceObj.department = department;
+    if(dateRange) findAttendanceObj.dateRange = dateRange;
+    if(skipPagination) {
+      findAttendanceObj.skipPagination = skipPagination
+    } else {
+      findAttendanceObj.pagination = pagination
+    }
+
+    const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAllAttendance(findAttendanceObj));
     if (findAttDataErr) {
       return res.status(500).json({
         status: false,
@@ -157,11 +191,13 @@ async function fetchAll(req, res) {
       });
     }
 
-    const records = findAttDataRes.data.records.map(({ check_in_time, check_out_time, date, total_work_hours }) => ({
-      checkInTime: formatTime(check_in_time),
-      checkOutTime: formatTime(check_out_time),
+    const records = findAttDataRes.data.records.map(({ check_in_time, check_out_time, date, total_work_hours, users }) => ({
+      checkInTime: check_in_time ? formatTime(check_in_time) : null,
+      checkOutTime: check_out_time ? formatTime(check_out_time) : null,
       date,
-      totalWorkHours: total_work_hours,
+      totalWorkHours: total_work_hours ? total_work_hours : 'N/A',
+      name: users.user_name,
+      department: users.department
     }));
 
     const response = {

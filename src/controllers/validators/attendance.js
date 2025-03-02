@@ -19,6 +19,8 @@ function getAttendaceSchema(name) {
     case ATTENDANCE.FETCH_ALL:
       return joi.object({
         email: joi.string(),
+        name: joi.string(),
+        department: joi.string(),
         skipPagination: joi.boolean(),
         dateRange: joi.object({
           startDate: joi.string(),

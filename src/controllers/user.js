@@ -7,7 +7,7 @@ async function login(req, res) {
   try {
     const { email, password } = req.body;
 
-    const [findUserErr, findUserRes] = await safePromise(User.findUser(email));
+    const [findUserErr, findUserRes] = await safePromise(User.findUser({ email }));
     if(findUserErr) {
       return res.status(500).json({
         status: false,
@@ -15,7 +15,6 @@ async function login(req, res) {
         data: {}
       });
     }
-
     if(!findUserRes.data.length || findUserRes.data.length > 1) {
       return res.status(401).json({
         status: false,
