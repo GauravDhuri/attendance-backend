@@ -13,6 +13,7 @@ function getAttendaceSchema(name) {
       });
     case ATTENDANCE.FETCH:
       return joi.object({
+        name: joi.string(),
         email: joi.string(),
         date: joi.string()
       })

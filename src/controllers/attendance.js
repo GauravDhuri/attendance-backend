@@ -81,9 +81,9 @@ async function mark(req, res) {
 
 async function fetch(req, res) {
   try {
-    const { email, date } = req.body;
+    const { email, date, name } = req.body;
 
-    const [findUserErr, findUserRes] = await safePromise(User.findUser(email));
+    const [findUserErr, findUserRes] = await safePromise(User.findUser({ email, name }));
     if(findUserErr) {
       return res.status(500).json({
         status: false,
@@ -92,6 +92,13 @@ async function fetch(req, res) {
       });
     }
 
+    if(!findUserRes || !findUserRes.data.length) {
+      return res.status(200).json({
+        status: true,
+        msg: "No user found",
+        data: {}
+      })
+    }
     const userData = findUserRes.data[0];
 
     const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAttendance({ date: date, user_id: userData.id }));
@@ -106,7 +113,7 @@ async function fetch(req, res) {
     if(!findAttDataRes || !findAttDataRes.data.length) {
       return res.status(200).json({
         status: true,
-        msg: "No Data Found",
+        msg: `No attendace for ${date}`,
         data: {}
       })
     }
@@ -153,19 +160,12 @@ async function fetchAll(req, res) {
       if(!findUserRes || !findUserRes.data.length) {
         return res.status(200).json({
           status: true,
-          msg: "success",
+          msg: "No user found",
           data: {}
         })
       }
 
       userData = findUserRes.data;
-      if(!userData.length) {
-        return res.status(200).json({
-          status: true,
-          msg: "scuccess",
-          data: {}
-        })
-      }
     }
 
     const findAttendanceObj = {}
@@ -211,6 +211,14 @@ async function fetchAll(req, res) {
         },
       }),
     };
+
+    if(!response.records.length) {
+      return res.status(200).json({
+        status: true,
+        msg: "No attendace data found",
+        data: {}
+      })
+    }
 
     return res.status(200).json({
       status: true,
