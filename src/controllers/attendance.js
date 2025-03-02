@@ -4,9 +4,9 @@ const Attendance = require("./../services/attendance.js");
 
 async function mark(req, res) {
   try {
-    const { checkInTime, checkOutTime, email, date } = req.body;
+    const { checkInTime, checkOutTime, email, date, name } = req.body;
 
-    const [findUserErr, findUserRes] = await safePromise(User.findUser({ email }));
+    const [findUserErr, findUserRes] = await safePromise(User.findUser({ name }));
     if(findUserErr) {
       return res.status(500).json({
         status: false,

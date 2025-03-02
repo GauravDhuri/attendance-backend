@@ -9,7 +9,8 @@ function getAttendaceSchema(name) {
         date: joi.string(),
         checkInTime: joi.string(),
         checkOutTime: joi.string(),
-        email: joi.string()
+        email: joi.string(),
+        name: joi.string()
       });
     case ATTENDANCE.FETCH:
       return joi.object({

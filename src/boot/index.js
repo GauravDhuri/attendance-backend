@@ -21,6 +21,9 @@ const { Route } = require("./route");
     await route.init(app);
     console.log(chalk.bold.yellow(`routes registration complete`));
 
+    require('../services/cron');
+    console.log(chalk.bold.yellow(`cronJob running`));
+
     console.log(chalk.bold.yellow(`server listening on port ${process.env.PORT}`));
 
     console.log(textSync("A t t e n d a n c e - M a n a g e m e n t"));
