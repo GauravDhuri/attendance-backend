@@ -58,7 +58,8 @@ async function login(req, res) {
       data: {
         email: email,
         userName: userData.user_name,
-        role: userData.role
+        role: userData.role,
+        department: userData.department
       }
     });
   } catch (error) {
