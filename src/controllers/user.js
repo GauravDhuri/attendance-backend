@@ -56,10 +56,13 @@ async function login(req, res) {
     }
 
     const cookieOptions = {
-      httpOnly: true,
       maxAge: cookie.maxAge,
-      path: cookie.path,
-      sameSite: 'None'
+      path: cookie.path
+    }
+    if(process.env.NODE_ENV == 'PROD') {
+      cookieOptions.sameSite ='None';
+      cookieOptions.httpOnly = true;
+      cookieOptions.secure = true;
     }
 
     res.cookie(cookie.name, jwtRes, cookieOptions);
