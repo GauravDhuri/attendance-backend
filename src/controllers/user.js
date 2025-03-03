@@ -56,8 +56,10 @@ async function login(req, res) {
     }
 
     const cookieOptions = {
+      httpOnly: true,
       maxAge: cookie.maxAge,
-      path: cookie.path
+      path: cookie.path,
+      sameSite: 'None'
     }
 
     res.cookie(cookie.name, jwtRes, cookieOptions);
