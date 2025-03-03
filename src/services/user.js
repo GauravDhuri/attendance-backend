@@ -1,6 +1,6 @@
 const config = require("../config/index.js");
 const { passwordCompare } = require("../utils");
-const { sign } = require("jsonwebtoken");
+const { sign, verify } = require("jsonwebtoken");
 const TOKEN_SECRET = config.jwt.JWT_TOKEN_SECRET;
 const JWT_EXPIRY_TIME = config.jwt.JWT_EXPIRY_TIME;
 
@@ -16,6 +16,57 @@ async function verifyPassword(password, userData) {
     success: true,
     data: "Login successful"
   })
+}
+
+async function verifyJsonWebToken(token) {
+  try {
+    return new Promise((resolve, reject) => {
+      verify(token, config.jwt.JWT_TOKEN_SECRET, async(err, decoded) => {
+        if(err) {
+          if(err.name == 'TokenExpiredError') {
+            return reject({
+              success: false,
+              msg: 'Token Expired'
+            })
+          } else if(err?.name == 'JsonWebTokenError') {
+            return reject({
+              success: false,
+              msg: 'Incorrect Token'
+            })
+          } else if(err) {
+            return reject({
+              success: false,
+              msg: 'Auth Error'
+            })
+          }
+        } 
+
+        delete decoded.iat;
+        delete decoded.exp;
+
+        if(!decoded && !decoded.token) {
+          return reject({
+            success: false,
+            msg: 'Auth Error'
+          })
+        }
+        if(!decoded && !decoded.userId) {
+          return reject({
+            success: false,
+            msg: 'Auth Error'
+          })
+        }
+
+        return resolve(decoded);
+      })
+    })
+  } catch (error) {
+    return Promise.reject({
+      success: false,
+      msg: 'Auth Error',
+      data: {}
+    })
+  }
 }
 
 async function generateJsonWebToken(data) {
@@ -62,6 +113,7 @@ async function findUser(params) {
 
 module.exports = {
   verifyPassword,
+  verifyJsonWebToken,
   generateJsonWebToken,
   findUser
 }
