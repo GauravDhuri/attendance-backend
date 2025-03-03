@@ -15,7 +15,7 @@ const VALIDATE_MODULE_NAMES = {
   }
 }
 
-const OPEN_ROUTE = ['/login'];
+const OPEN_ROUTE = ['/user/login','/api/v1/user/login'];
 
 module.exports = {
   VALIDATE_MODULE_NAMES,
