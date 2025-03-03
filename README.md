@@ -30,15 +30,15 @@ To set up the backend locally, follow these steps:
 ### Prerequisites
 
 - Ensure that you have **Node.js** and **npm** installed on your machine.
-- A **MongoDB** database (or another database if configured differently).
+- A database configured (I have used supabase. Since its a demo project)
 
 ### Steps
 
 1. Clone the repository to your local machine:
 
-   ```bash
-   git clone <repository-url>
-   cd attendance-backend
+  ```bash
+  git clone <repository-url>
+  cd attendance-backend
   ```
 
 2. Install the required dependencies:
