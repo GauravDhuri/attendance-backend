@@ -50,9 +50,11 @@ To set up the backend locally, follow these steps:
 3. Set up the environment variables by creating a .env file. Here's an example of what you may need:
 
   ```bash
-  JWT_SECRET=<your-jwt-secret>
-  DB_URI=<your-database-uri>
-  PORT=5000
+  PORT=<PORT>
+  SUPABASE_KEY=<SUPABASE_KEY>
+  ORIGIN=<FRONTEND_ORIGIN>
+  EMAIL_SECRET=<SECRET_KEY_FOR_EMAIL_SERVICE>
+  EMAIL=<EMAIL_FOR_EMAIL_SERVICE>
   ```
 
 4. Start the development server:
