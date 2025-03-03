@@ -2,13 +2,19 @@ const config = require("../config/index.js");
 const { safePromise } = require("../utils");
 const User = require("./../services/user.js");
 const cookie = config.cookie;
+const { createLogger } = require("../utils/logger.js");
+
+const log = createLogger('user');
 
 async function login(req, res) {
+  const functionName = 'Login';
   try {
+    log.info(functionName, 'Started', req.body);
     const { email, password } = req.body;
 
     const [findUserErr, findUserRes] = await safePromise(User.findUser({ email }));
     if(findUserErr) {
+      log.error(functionName, 'find user error', findUserErr);
       return res.status(500).json({
         status: false,
         msg: "Internal Error",
@@ -16,6 +22,7 @@ async function login(req, res) {
       });
     }
     if(!findUserRes.data.length || findUserRes.data.length > 1) {
+      log.error(functionName, 'No user found', findUserErr);
       return res.status(401).json({
         status: false,
         msg: "Authentication Error",
@@ -26,6 +33,7 @@ async function login(req, res) {
     const userData = findUserRes.data[0];
     const [verifyUserErr, _verifyUserRes] = await safePromise(User.verifyPassword(password, userData));
     if(verifyUserErr) {
+      log.error(functionName, 'Password verification failed', findUserErr);
       return res.status(401).json({
         status: false,
         msg: "Authentication Error",
@@ -39,6 +47,7 @@ async function login(req, res) {
       userId: userData.id
     }));
     if(jwtErr) {
+      log.error(functionName, 'jwt generation failed', findUserErr);
       return res.status(401).json({
         status: false,
         msg: "Authentication Error",
@@ -63,6 +72,7 @@ async function login(req, res) {
       }
     });
   } catch (error) {
+    log.error(functionName, 'catch error', findUserErr);
     return res.status(500).json({
       status: false,
       msg: "Something went wrong",

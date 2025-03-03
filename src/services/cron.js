@@ -3,6 +3,9 @@ const nodemailer = require('nodemailer');
 const Attendance = require('./attendance.js');
 const User = require('./user.js');
 const { safePromise } = require('../utils/index.js');
+const { createLogger } = require("../utils/logger.js");
+
+const log = createLogger('cron');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.sendgrid.net',
@@ -27,10 +30,11 @@ const sendReminderEmail = async (userEmail, subject, text) => {
   };
 
   try {
+    const functionName = 'sendMail';
     await transporter.sendMail(mailOptions);
-    console.log(`Reminder sent to ${userEmail}`);
+    log.info(functionName, `Reminder sent to ${userEmail}`);
   } catch (error) {
-    console.error('Error sending email:', error);
+    log.error(functionName, 'Error sending email:', error);
   }
 };
 
@@ -51,7 +55,7 @@ cron.schedule('0 11 * * *', async () => {
       }
     }
   } catch (error) {
-    console.error('Error checking attendance for check-in reminder:', error);
+    log.error(functionName, 'Error checking attendance for check-in reminder:', error);
   }
 });
 
@@ -72,7 +76,7 @@ cron.schedule('0 20 * * *', async () => {
       }
     }
   } catch (error) {
-    console.error('Error checking attendance for check-out reminder:', error);
+    log.error(functionName, 'Error checking attendance for check-out reminder:', error);
   }
 });
 

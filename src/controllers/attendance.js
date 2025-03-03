@@ -1,13 +1,19 @@
 const { calculateTotalHours, safePromise, formatTime } = require("../utils");
 const User = require("./../services/user.js");
 const Attendance = require("./../services/attendance.js");
+const { createLogger } = require("../utils/logger.js");
+
+const log = createLogger('attendance');
 
 async function mark(req, res) {
+  const functionName = 'mark';
   try {
-    const { checkInTime, checkOutTime, email, date, name } = req.body;
+    log.info(functionName, 'Started', req.body);
+    const { checkInTime, checkOutTime, date, name } = req.body;
 
     const [findUserErr, findUserRes] = await safePromise(User.findUser({ name }));
     if(findUserErr) {
+      log.error(functionName, 'find user error', findUserErr);
       return res.status(500).json({
         status: false,
         msg: "Internal Error",
@@ -21,6 +27,7 @@ async function mark(req, res) {
 
     const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAttendance({ date: date, user_id: userData.id }));
     if(findAttDataErr) {
+      log.error(functionName, 'Error in finding attendance', findAttDataErr);
       return res.status(500).json({
         status: false,
         msg: "Internal Error",
@@ -39,6 +46,7 @@ async function mark(req, res) {
   
       const [addErr, _addRes] = await safePromise(Attendance.addAttendance(attendanceData));
       if(addErr) {
+        log.error(functionName, 'Error in finding attendance data', addErr);
         return res.status(500).json({
           status: false,
           msg: "Internal Error",
@@ -56,6 +64,7 @@ async function mark(req, res) {
       const updateId = findAttDataRes.data[0].id;
       const [updateErr, _updateRes] = await safePromise(Attendance.updateAttendance(updateAttendance, updateId));
       if(updateErr) {
+        log.error(functionName, 'Error in updating attendance data', updateErr);
         return res.status(500).json({
           status: false,
           msg: "Internal Error",
@@ -70,7 +79,7 @@ async function mark(req, res) {
       data: {}
     });
   } catch (error) {
-    console.log('error in marking attendance', error);
+    log.error(functionName, 'catch error', error);
     return res.status(500).json({
       status: false,
       msg: "Something went wrong",
@@ -80,11 +89,14 @@ async function mark(req, res) {
 }
 
 async function fetch(req, res) {
+  const functionName = 'fetch';
   try {
+    log.info(functionName, 'Started', req.body);
     const { email, date, name } = req.body;
 
     const [findUserErr, findUserRes] = await safePromise(User.findUser({ email, name }));
     if(findUserErr) {
+      log.error(functionName, 'find user error', findUserErr);
       return res.status(500).json({
         status: false,
         msg: "Internal Error",
@@ -93,6 +105,7 @@ async function fetch(req, res) {
     }
 
     if(!findUserRes || !findUserRes.data.length) {
+      log.info(functionName, 'No user found', findUserRes);
       return res.status(200).json({
         status: true,
         msg: "No user found",
@@ -103,6 +116,7 @@ async function fetch(req, res) {
 
     const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAttendance({ date: date, user_id: userData.id }));
     if(findAttDataErr) {
+      log.error(functionName, 'error in finding attendance', findAttDataErr);
       return res.status(500).json({
         status: false,
         msg: "Internal Error",
@@ -111,6 +125,7 @@ async function fetch(req, res) {
     }
 
     if(!findAttDataRes || !findAttDataRes.data.length) {
+      log.info(functionName, 'No attendace data found', findAttDataRes);
       return res.status(200).json({
         status: true,
         msg: `No attendace for ${date}`,
@@ -142,7 +157,9 @@ async function fetch(req, res) {
 }
 
 async function fetchAll(req, res) {
+  const functionName = 'fetchAll';
   try {
+    log.info(functionName, 'Started', req.body);
     const { email, name, department, pagination, skipPagination, dateRange } = req.body;
 
     let userData;
@@ -150,6 +167,7 @@ async function fetchAll(req, res) {
     if(email || name || department) {
       const [findUserErr, findUserRes] = await safePromise(User.findUser({ email, name, department }));
       if (findUserErr) {
+        log.error(functionName, 'find user error', findUserErr);
         return res.status(500).json({
           status: false,
           msg: 'Internal Error',
@@ -158,6 +176,7 @@ async function fetchAll(req, res) {
       }
   
       if(!findUserRes || !findUserRes.data.length) {
+        log.info(functionName, 'No user data found', findUserRes);
         return res.status(200).json({
           status: true,
           msg: "No user found",
@@ -184,6 +203,7 @@ async function fetchAll(req, res) {
 
     const [findAttDataErr, findAttDataRes] = await safePromise(Attendance.fetchAllAttendance(findAttendanceObj));
     if (findAttDataErr) {
+      log.error(functionName, 'error in fetching all attendace data', findAttDataErr);
       return res.status(500).json({
         status: false,
         msg: 'Internal Error',
@@ -213,6 +233,7 @@ async function fetchAll(req, res) {
     };
 
     if(!response.records.length) {
+      log.info(functionName, 'No attendace data found', response);
       return res.status(200).json({
         status: true,
         msg: "No attendace data found",
@@ -226,7 +247,7 @@ async function fetchAll(req, res) {
       data: response
     })
   } catch (error) {
-    console.log('error in fetching all attendance', error);
+    log.error(functionName, 'catch error', error);
     return res.status(500).json({
       status: false,
       msg: "Something went wrong",
