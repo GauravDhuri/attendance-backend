@@ -59,7 +59,7 @@ async function login(req, res) {
       maxAge: cookie.maxAge,
       path: cookie.path
     }
-    if(process.env.NODE_ENV == 'PROD') {
+    if(process.env.NODE_ENV !== 'LOCAL') {
       cookieOptions.sameSite ='None';
       cookieOptions.httpOnly = true;
       cookieOptions.secure = true;
